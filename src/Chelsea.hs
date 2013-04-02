@@ -1,5 +1,8 @@
 module Chelsea where
 
+import Text.Parsec.Char
+import Text.Parsec.String
+
 data Program = Program String [ProgramLine]
   deriving (Eq, Show)
   
@@ -53,3 +56,19 @@ data ChFunc = FnSqr | FnSin | FnCos | FnTan | FnAtn | FnExp | FnAbs | FnLog | Fn
             
 data ChRel = RelLt | RelLe | RelEq | RelNe | RelGt | RelGe
   deriving (Eq, Show)
+
+
+addLine :: Program -> String -> Program
+addLine p l = p'
+  where pl = parseLine l
+        p' = insertOrReplace p pl
+        
+insertOrReplace :: Program -> ProgramLine -> Program
+insertOrReplace (Program nm p) pl@(ProgramLine ln _ _) = Program nm (before ++ [pl] ++ after)
+  where before = filter (\pl' -> lineNumber pl' < ln) p
+        after  = filter (\pl' -> lineNumber pl' > ln) p
+        lineNumber (ProgramLine ln' _ _) = ln'
+
+parseLine :: String -> ProgramLine
+parseLine l = ProgramLine 0 l StatementSyntaxError
+
